@@ -77,8 +77,8 @@ type WatchRule struct {
 func (rule *WatchRule) check() (err error) {
 	rule.Path = strings.Trim(rule.Path, " \t\n ")
 	rule.Match = strings.Trim(rule.Match, "\t\n ")
-	if len(rule.Path) == 0 || len(rule.Match) == 0 {
-		err = fmt.Errorf("rule.check: rule.path/match empty: %#v", rule)
+	if len(rule.Path) == 0 {
+		err = fmt.Errorf("rule.check: rule.path empty: %#v", rule)
 		return
 	}
 	if rule.TimeLayout == "" {
@@ -182,7 +182,7 @@ func (rule *WatchRule) Process() (err error) {
 			err error
 		)
 		for line := range lines {
-			if re.MatchString(line) {
+			if rule.Match == "" || re.MatchString(line) {
 				logTime := time.Time{}
 				if len(rule.StartAtStr) > 0 || len(rule.EndAtStr) > 0 {
 					if len(line) < len(rule.LogTimeLayout) {

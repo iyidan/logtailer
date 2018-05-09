@@ -413,3 +413,36 @@ func TestTailDir(t *testing.T) {
 
 	commonTestRule(t, rule, beforeStart, afterStart, afterClosed)
 }
+
+func TestTailFileEmptyMatch(t *testing.T) {
+	filename := filepath.Join(TestDir, "TestTailFileEmptyMatch.log")
+	rule := &WatchRule{
+		Path:  filename,
+		Match: "",
+	}
+
+	beforeStart := func() {
+		file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if _, err := file.WriteString("aaa\nbbb\nccc\n\t\n\n"); err != nil {
+			t.Fatal()
+		}
+		file.Sync()
+		file.Close()
+	}
+
+	afterStart := func() {
+
+	}
+
+	afterClosed := func() {
+		if rule.matchedIdx != 5 {
+			t.Fatal()
+		}
+	}
+
+	commonTestRule(t, rule, beforeStart, afterStart, afterClosed)
+}
